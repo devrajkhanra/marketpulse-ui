@@ -15,11 +15,26 @@ const formatToApiDate = (date: Date): string => {
     return `${day}${month}${year}`;
 };
 
+interface Stock {
+    Symbol: string;
+    "%Chng": number;
+}
+
+interface StockPerformance {
+    topGainers: Stock[];
+    topLosers: Stock[];
+}
+
+interface StockVolume {
+    symbol: string;
+    volumeDifference: number;
+}
+
 export default function StocksClient() {
     const [performanceDate, setPerformanceDate] = useState<Date | undefined>(new Date());
     const [volumeDates, setVolumeDates] = useState<string[]>([]);
-    const [stockPerformance, setStockPerformance] = useState<any>(null);
-    const [stockVolume, setStockVolume] = useState<any[]>([]);
+    const [stockPerformance, setStockPerformance] = useState<StockPerformance | null>(null);
+    const [stockVolume, setStockVolume] = useState<StockVolume[]>([]);
     const [loadingPerformance, setLoadingPerformance] = useState(false);
     const [loadingVolume, setLoadingVolume] = useState(false);
     const [errorPerformance, setErrorPerformance] = useState<string | null>(null);
@@ -74,7 +89,7 @@ export default function StocksClient() {
                             <div>
                                 <h3 className="font-semibold mb-2">Top 5 Gainers</h3>
                                 <ul className="space-y-2">
-                                    {stockPerformance.topGainers.map((stock: any) => (
+                                    {stockPerformance.topGainers.map((stock) => (
                                         <li key={stock.Symbol} className="flex justify-between">
                                             <span>{stock.Symbol}</span>
                                             <span className="text-green-500">{stock["%Chng"]}</span>
@@ -85,7 +100,7 @@ export default function StocksClient() {
                             <div>
                                 <h3 className="font-semibold mb-2">Top 5 Losers</h3>
                                 <ul className="space-y-2">
-                                    {stockPerformance.topLosers.map((stock: any) => (
+                                    {stockPerformance.topLosers.map((stock) => (
                                         <li key={stock.Symbol} className="flex justify-between">
                                             <span>{stock.Symbol}</span>
                                             <span className="text-red-500">{stock["%Chng"]}</span>
@@ -103,7 +118,7 @@ export default function StocksClient() {
                     <CardTitle>Nifty 50 Stock Volume Analysis</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="mb-2">Select two dates to compare volume. The first date will be the 'previous' and the second the 'current'.</p>
+                    <p className="mb-2">Select two dates to compare volume. The first date will be the &apos;previous&apos; and the second the &apos;current&apos;.</p>
                     <div className="flex items-center gap-4 mb-4">
                         <Calendar
                             mode="multiple"
@@ -125,7 +140,7 @@ export default function StocksClient() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {stockVolume.map((stock: any) => (
+                                {stockVolume.map((stock) => (
                                     <TableRow key={stock.symbol}>
                                         <TableCell>{stock.symbol}</TableCell>
                                         <TableCell>{stock.volumeDifference.toLocaleString()}</TableCell>

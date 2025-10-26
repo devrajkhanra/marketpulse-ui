@@ -10,6 +10,16 @@ const formatToApiDate = (date: Date): string => {
     return `${day}${month}${year}`;
 };
 
+interface Stock {
+    Symbol: string;
+    "%Chng": number;
+}
+
+interface Sector {
+    name: string;
+    percentChange: number;
+}
+
 async function getLatestData() {
     const today = new Date();
     const apiDate = formatToApiDate(today);
@@ -20,7 +30,7 @@ async function getLatestData() {
             getSectorPerformance(apiDate),
         ]);
         return { stockPerformance, sectorPerformance };
-    } catch (error) {
+    } catch {
         console.error("Failed to fetch latest data, attempting with yesterday's date");
         
         const yesterday = new Date();
@@ -43,7 +53,7 @@ async function getLatestData() {
 export default async function Home() {
     const { stockPerformance, sectorPerformance } = await getLatestData();
 
-    const renderStockList = (stocks: any[], type: 'gainer' | 'loser') => (
+    const renderStockList = (stocks: Stock[], type: 'gainer' | 'loser') => (
         <ul className="space-y-2">
             {stocks.map((stock, index) => (
                 <li key={index} className="flex justify-between items-center">
@@ -57,7 +67,7 @@ export default async function Home() {
         </ul>
     );
 
-    const renderSectorList = (sectors: any[], type: 'gainer' | 'loser') => (
+    const renderSectorList = (sectors: Sector[], type: 'gainer' | 'loser') => (
         <ul className="space-y-2">
             {sectors.map((sector, index) => (
                 <li key={index} className="flex justify-between items-center">

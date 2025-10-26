@@ -16,9 +16,9 @@ export default function Sidebar() {
   const { isDownloading } = useDownload();
 
   return (
-    <aside className="w-64 bg-gray-800 text-white p-4">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold">MarketPulse</h2>
+    <aside className="w-64 bg-card text-card-foreground p-4 border-r border-border">
+      <div className="mb-8 flex items-center justify-center">
+        <h2 className="text-2xl font-bold text-primary-foreground">MarketPulse</h2>
       </div>
       <nav>
         <ul>
@@ -26,10 +26,10 @@ export default function Sidebar() {
             const isActive = pathname === link.href;
             return (
               <li key={link.href}>
-                <Link href={link.href} className={cn('flex items-center p-2 rounded-md hover:bg-gray-700', { 'bg-gray-700': isActive })}>
-                  <link.icon className="mr-2" />
-                  {link.label}
-                  {link.href === '/download' && isDownloading && <Loader2 className="ml-auto animate-spin" />}
+                <Link href={link.href} className={cn('flex items-center p-3 rounded-md hover:bg-muted', { 'bg-muted': isActive })}>
+                  <link.icon className="mr-3 h-5 w-5 text-muted-foreground" />
+                  <span className="font-medium text-foreground">{link.label}</span>
+                  {link.href === '/download' && isDownloading && <Loader2 className="ml-auto h-5 w-5 animate-spin text-primary" />}
                 </Link>
               </li>
             );

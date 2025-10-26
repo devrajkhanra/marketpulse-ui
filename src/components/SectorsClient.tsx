@@ -15,11 +15,31 @@ const formatToApiDate = (date: Date): string => {
     return `${day}${month}${year}`;
 };
 
+interface SectorPerformance {
+    topGainers: Sector[];
+    topLosers: Sector[];
+}
+
+interface Sector {
+    name: string;
+    percentChange: number;
+}
+
+interface SectorVolume {
+    highest: SectorVolumeData[];
+    lowest: SectorVolumeData[];
+}
+
+interface SectorVolumeData {
+    name: string;
+    ratio: number;
+}
+
 export default function SectorsClient() {
     const [performanceDate, setPerformanceDate] = useState<Date | undefined>(new Date());
     const [volumeRange, setVolumeRange] = useState<{ from: Date | undefined, to: Date | undefined }>({ from: undefined, to: undefined });
-    const [sectorPerformance, setSectorPerformance] = useState<any>(null);
-    const [sectorVolume, setSectorVolume] = useState<any>(null);
+    const [sectorPerformance, setSectorPerformance] = useState<SectorPerformance | null>(null);
+    const [sectorVolume, setSectorVolume] = useState<SectorVolume | null>(null);
     const [loadingPerformance, setLoadingPerformance] = useState(false);
     const [loadingVolume, setLoadingVolume] = useState(false);
     const [errorPerformance, setErrorPerformance] = useState<string | null>(null);
@@ -74,7 +94,7 @@ export default function SectorsClient() {
                             <div>
                                 <h3 className="font-semibold mb-2">Top 5 Gainers</h3>
                                 <ul className="space-y-2">
-                                    {sectorPerformance.topGainers.map((sector: any) => (
+                                    {sectorPerformance.topGainers.map((sector) => (
                                         <li key={sector.name} className="flex justify-between">
                                             <span>{sector.name}</span>
                                             <span className="text-green-500">{sector.percentChange.toFixed(2)}%</span>
@@ -85,7 +105,7 @@ export default function SectorsClient() {
                             <div>
                                 <h3 className="font-semibold mb-2">Top 5 Losers</h3>
                                 <ul className="space-y-2">
-                                    {sectorPerformance.topLosers.map((sector: any) => (
+                                    {sectorPerformance.topLosers.map((sector) => (
                                         <li key={sector.name} className="flex justify-between">
                                             <span>{sector.name}</span>
                                             <span className="text-red-500">{sector.percentChange.toFixed(2)}%</span>

@@ -6,7 +6,8 @@ import { Calendar } from '@/components/ui/Calendar';
 import { Progress } from '@/components/ui/Progress';
 import { getDate } from '@/lib/api';
 import { useDownload } from '@/context/DownloadContext';
-import { CheckCircle, DownloadCloud, XCircle } from 'lucide-react';
+import { CheckCircle, DownloadCloud, XCircle, Calendar as CalendarIcon, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 // Helper to format a Date object to ddmmyyyy string
 const formatToApiDate = (date: Date): string => {
@@ -69,7 +70,7 @@ export default function DownloadClient() {
   const handleAddRange = () => {
     if (dateRange.from && dateRange.to) {
         const newDates = new Set(selectedDates);
-        let currentDate = new Date(dateRange.from);
+        const currentDate = new Date(dateRange.from);
         while(currentDate <= dateRange.to) {
             if (!isWeekend(currentDate)) {
                 newDates.add(formatToApiDate(currentDate));
@@ -104,67 +105,80 @@ export default function DownloadClient() {
         case 'error':
             return <XCircle className="text-red-500" />;
         default:
-            return <DownloadCloud className="text-gray-400" />;
+            return <DownloadCloud className="text-muted-foreground" />;
     }
   }
 
   return (
-    <div className="space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle>Download Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-                {loading ? <p>Loading...</p> : <p><strong>Last Downloaded Report:</strong> {lastDownloaded ? new Date(parseApiDate(lastDownloaded)).toDateString() : 'N/A'}</p>}
-            </CardContent>
-        </Card>
-
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-2 space-y-6">
         <Card>
             <CardHeader>
                 <CardTitle>Select Dates for Download</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="flex gap-4 mb-4">
-                    <Button onClick={() => setPickerMode('single')} variant={pickerMode === 'single' ? 'default' : 'outline'}>Single Date</Button>
-                    <Button onClick={() => setPickerMode('range')} variant={pickerMode === 'range' ? 'default' : 'outline'}>Date Range</Button>
+                <div className="flex gap-4 mb-4 border-b pb-4">
+                    <Button onClick={() => setPickerMode('single')} variant={pickerMode === 'single' ? 'secondary' : 'ghost'}>Single Date</Button>
+                    <Button onClick={() => setPickerMode('range')} variant={pickerMode === 'range' ? 'secondary' : 'ghost'}>Date Range</Button>
                 </div>
 
-                {pickerMode === 'single' && (
-                    <div className="flex items-center gap-4">
-                        <Calendar mode="single" selected={date} onSelect={setDate} disabled={isWeekend} />
-                        <Button onClick={handleAddDate}>Add Date</Button>
-                    </div>
-                )}
+                <div className="flex flex-col md:flex-row gap-6">
+                    {pickerMode === 'single' && (
+                        <div className="flex flex-col items-center gap-4">
+                            <Calendar mode="single" selected={date} onSelect={setDate} disabled={isWeekend} />
+                            <Button onClick={handleAddDate} className="w-full">Add Date</Button>
+                        </div>
+                    )}
 
-                {pickerMode === 'range' && (
-                    <div className="flex items-center gap-4">
-                        <Calendar mode="range" selected={dateRange} onSelect={setDateRange} disabled={isWeekend} />
-                         <Button onClick={handleAddRange}>Add Date Range</Button>
+                    {pickerMode === 'range' && (
+                        <div className="flex flex-col items-center gap-4">
+                            <Calendar mode="range" selected={dateRange} onSelect={setDateRange} disabled={isWeekend} />
+                            <Button onClick={handleAddRange} className="w-full">Add Date Range</Button>
+                        </div>
+                    )}
+                     <div className="flex-1">
+                        {error && <p className="text-red-500 mt-2 mb-4">{error}</p>}
+                        {selectedDates.size > 0 && (
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-semibold">Selected Dates</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {Array.from(selectedDates).sort().map(d => (
+                                        <Badge key={d} variant="secondary" className="flex items-center gap-2">
+                                        <span>{new Date(parseApiDate(d)).toLocaleDateString()}</span>
+                                        <button onClick={() => handleRemoveDate(d)} className="text-muted-foreground hover:text-foreground">
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
-                 {error && <p className="text-red-500 mt-2">{error}</p>}
+                </div>
             </CardContent>
         </Card>
-
-        {selectedDates.size > 0 && (
-             <Card>
-                <CardHeader>
-                    <CardTitle>Selected Dates</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                    {Array.from(selectedDates).sort().map(d => (
-                        <div key={d} className="flex items-center gap-2 bg-gray-200 rounded-full px-3 py-1 text-sm">
-                           <span>{new Date(parseApiDate(d)).toDateString()}</span>
-                           <button onClick={() => handleRemoveDate(d)} className="text-red-500 hover:text-red-700">X</button>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-        )}
 
         <Button onClick={handleDownload} disabled={selectedDates.size === 0 || isDownloading} size="lg" className="w-full">
             {isDownloading ? 'Downloading...' : `Download ${selectedDates.size} Report(s)`}
         </Button>
+      </div>
+
+      <div className="space-y-6">
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5"/>
+                    <span>Download Status</span>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                {loading ? <p>Loading...</p> : 
+                <div className="text-sm">
+                    <span className="font-semibold">Last Report:</span>
+                    <span className="text-muted-foreground ml-2">{lastDownloaded ? new Date(parseApiDate(lastDownloaded)).toDateString() : 'N/A'}</span>
+                </div>}
+            </CardContent>
+        </Card>
 
         {downloads.length > 0 && (
             <Card>
@@ -178,13 +192,15 @@ export default function DownloadClient() {
                             <div className="flex-shrink-0">{getStatusIcon(d.status)}</div>
                             <div className="flex-grow">
                                 <p className="font-semibold">{new Date(parseApiDate(d.date)).toDateString()}</p>
-                                <Progress value={d.progress} className="w-full"/>
+                                <Progress value={d.progress} className="w-full h-2"/>
+                                 {d.status === 'error' && <p className="text-xs text-red-500">Failed</p>}
                             </div>
                         </div>
                     ))}
                 </CardContent>
             </Card>
         )}
+      </div>
     </div>
   )
 }

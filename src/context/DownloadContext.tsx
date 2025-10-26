@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { downloadNseReports, getDate } from '@/lib/api';
+import { downloadNseReports } from '@/lib/api';
 
 // Helper to parse ddmmyyyy string to a Date object
 const parseApiDate = (dateStr: string): Date => {
