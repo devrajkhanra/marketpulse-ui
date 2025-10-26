@@ -1,10 +1,10 @@
 :root {
-    --background: #0b1120;
-    --foreground: #d1d5db;
-    --primary: #3b82f6;
+    --background: #f9fafb;
+    --foreground: #1f2937;
+    --primary: #0070f3;
     --primary-foreground: #ffffff;
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
+    --muted: #e5e7eb;
+    --muted-foreground: #6b7280;
 }
 
 body {
@@ -14,7 +14,7 @@ body {
 }
 
 .dark {
-    --background: #0b1120;
+    --background: #111827;
     --foreground: #d1d5db;
 }
 
@@ -27,7 +27,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #fff;
+    color: #111827;
 }
 
 a {
@@ -38,12 +38,12 @@ a {
 }
 
 a:hover {
-    color: #60a5fa;
+    color: #0056b3;
 }
 
 a:focus-visible {
     outline-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.4);
 }
 
 button,
@@ -58,14 +58,14 @@ button:focus-visible,
 input[type="button"]:focus-visible,
 input[type="submit"]:focus-visible {
     outline-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.4);
 }
 
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
     outline: 2px solid var(--primary) !important;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4) !important;
+    box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.4) !important;
 }
 
 ::-webkit-scrollbar {
@@ -74,16 +74,16 @@ select:focus-visible {
 }
 
 ::-webkit-scrollbar-track {
-    background: #111827;
+    background: #e5e7eb;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #1f2937;
+    background: #d1d5db;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #374151;
+    background: #9ca3af;
 }
 
 ::selection {

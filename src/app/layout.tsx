@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} dark bg-background text-foreground`}>
+      <body className={`${inter.className} bg-background text-foreground`}>
         <DownloadProvider>
           <div className={styles.grid}>
             <Sidebar />
