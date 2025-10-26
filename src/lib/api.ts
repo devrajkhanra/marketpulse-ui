@@ -34,7 +34,6 @@ export const getSectorVolumeRatio = async (startDate: string, endDate: string) =
 };
 
 export const getTopGainersLosers = async (date?: string) => {
-  console.log('Date: ', date);
   const response = await apiClient.get('/performance/top-gainers-losers', {
     params: { date },
   });
