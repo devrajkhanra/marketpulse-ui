@@ -21,8 +21,10 @@ export const getSectorPerformance = async (date: string) => {
   return response.data;
 };
 
-export const getSectorVolumeRatio = async (currentDate: string, previousDate: string) => {
-  const response = await apiClient.get(`/sectors/volume-ratio/${currentDate}/${previousDate}`);
+export const getSectorVolumeRatio = async (startDate: string, endDate: string) => {
+  const response = await apiClient.get(`/sectors/volume-ratio`, {
+    params: { startDate, endDate },
+  });
   return response.data;
 };
 

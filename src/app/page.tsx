@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { getTopGainersLosers, getSectorPerformance } from '@/lib/api';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import styles from './page.module.css';
 
 // Helper to format a Date object to ddmmyyyy string
 const formatToApiDate = (date: Date): string => {
@@ -54,12 +53,12 @@ export default async function Home() {
     const { stockPerformance, sectorPerformance } = await getLatestData();
 
     const renderStockList = (stocks: Stock[], type: 'gainer' | 'loser') => (
-        <ul className="space-y-2">
+        <ul className={styles.list}>
             {stocks.map((stock, index) => (
-                <li key={index} className="flex justify-between items-center">
+                <li key={index} className={styles.listItem}>
                     <span>{stock.Symbol}</span>
-                    <span className={`flex items-center font-semibold ${type === 'gainer' ? 'text-green-500' : 'text-red-500'}`}>
-                        {type === 'gainer' ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                    <span className={type === 'gainer' ? styles.gainer : styles.loser}>
+                        {type === 'gainer' ? '▲' : '▼'}
                         {stock["%Chng"]}
                     </span>
                 </li>
@@ -68,12 +67,12 @@ export default async function Home() {
     );
 
     const renderSectorList = (sectors: Sector[], type: 'gainer' | 'loser') => (
-        <ul className="space-y-2">
+        <ul className={styles.list}>
             {sectors.map((sector, index) => (
-                <li key={index} className="flex justify-between items-center">
+                <li key={index} className={styles.listItem}>
                     <span>{sector.name}</span>
-                    <span className={`flex items-center font-semibold ${type === 'gainer' ? 'text-green-500' : 'text-red-500'}`}>
-                        {type === 'gainer' ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                    <span className={type === 'gainer' ? styles.gainer : styles.loser}>
+                        {type === 'gainer' ? '▲' : '▼'}
                         {sector.percentChange.toFixed(2)}%
                     </span>
                 </li>
@@ -82,61 +81,61 @@ export default async function Home() {
     );
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6">Market Overview</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className={styles.container}>
+            <h1 className={styles.title}>Market Overview</h1>
+            <div className={styles.grid}>
                 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Top 5 Nifty 50 Gainers</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>
+                        <h2 className={styles.cardTitle}>Top 5 Nifty 50 Gainers</h2>
+                    </div>
+                    <div className={styles.cardContent}>
                         {stockPerformance?.topGainers ? (
                             renderStockList(stockPerformance.topGainers, 'gainer')
                         ) : (
                             <p>Data not available.</p>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Top 5 Nifty 50 Losers</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>
+                        <h2 className={styles.cardTitle}>Top 5 Nifty 50 Losers</h2>
+                    </div>
+                    <div className={styles.cardContent}>
                         {stockPerformance?.topLosers ? (
                             renderStockList(stockPerformance.topLosers, 'loser')
                         ) : (
                             <p>Data not available.</p>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Top 5 Gaining Sectors</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>
+                        <h2 className={styles.cardTitle}>Top 5 Gaining Sectors</h2>
+                    </div>
+                    <div className={styles.cardContent}>
                         {sectorPerformance?.topGainers ? (
                             renderSectorList(sectorPerformance.topGainers, 'gainer')
                         ) : (
                             <p>Data not available.</p>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Top 5 Losing Sectors</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>
+                        <h2 className={styles.cardTitle}>Top 5 Losing Sectors</h2>
+                    </div>
+                    <div className={styles.cardContent}>
                         {sectorPerformance?.topLosers ? (
                             renderSectorList(sectorPerformance.topLosers, 'loser')
                         ) : (
                             <p>Data not available.</p>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );

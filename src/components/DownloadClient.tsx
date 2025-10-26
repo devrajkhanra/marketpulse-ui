@@ -1,13 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Calendar } from '@/components/ui/Calendar';
-import { Progress } from '@/components/ui/Progress';
 import { getDate } from '@/lib/api';
 import { useDownload } from '@/context/DownloadContext';
-import { CheckCircle, DownloadCloud, XCircle, Calendar as CalendarIcon, X } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import './DownloadClient.css';
 
 // Helper to format a Date object to ddmmyyyy string
 const formatToApiDate = (date: Date): string => {
@@ -101,104 +96,109 @@ export default function DownloadClient() {
   const getStatusIcon = (status: 'pending' | 'downloading' | 'success' | 'error') => {
     switch (status) {
         case 'success':
-            return <CheckCircle className="text-green-500" />;
+            return <span className="status-icon success">✓</span>;
         case 'error':
-            return <XCircle className="text-red-500" />;
+            return <span className="status-icon error">✗</span>;
         default:
-            return <DownloadCloud className="text-muted-foreground" />;
+            return <span className="status-icon pending">↓</span>;
     }
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle>Select Dates for Download</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex gap-4 mb-4 border-b pb-4">
-                    <Button onClick={() => setPickerMode('single')} variant={pickerMode === 'single' ? 'secondary' : 'ghost'}>Single Date</Button>
-                    <Button onClick={() => setPickerMode('range')} variant={pickerMode === 'range' ? 'secondary' : 'ghost'}>Date Range</Button>
+    <div className="download-client">
+      <div className="main-content">
+        <div className="card">
+            <div className="card-header">
+                <h2 className="card-title">Select Dates for Download</h2>
+            </div>
+            <div className="card-content">
+                <div className="picker-controls">
+                    <button onClick={() => setPickerMode('single')} className={`button ${pickerMode === 'single' ? 'button-secondary' : 'button-ghost'}`}>Single Date</button>
+                    <button onClick={() => setPickerMode('range')} className={`button ${pickerMode === 'range' ? 'button-secondary' : 'button-ghost'}`}>Date Range</button>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-6">
+                <div className="picker-container">
                     {pickerMode === 'single' && (
-                        <div className="flex flex-col items-center gap-4">
-                            <Calendar mode="single" selected={date} onSelect={setDate} disabled={isWeekend} />
-                            <Button onClick={handleAddDate} className="w-full">Add Date</Button>
+                        <div className="date-picker">
+                            {/* Replace with a simple date input for now */}
+                            <input type="date" onChange={(e) => setDate(new Date(e.target.value))} className="calendar" />
+                            <button onClick={handleAddDate} className="button w-full">Add Date</button>
                         </div>
                     )}
 
                     {pickerMode === 'range' && (
-                        <div className="flex flex-col items-center gap-4">
-                            <Calendar mode="range" selected={dateRange} onSelect={setDateRange} disabled={isWeekend} />
-                            <Button onClick={handleAddRange} className="w-full">Add Date Range</Button>
+                        <div className="date-picker">
+                             {/* Replace with a simple date input for now */}
+                            <input type="date" onChange={(e) => setDateRange({ ...dateRange, from: new Date(e.target.value)})} className="calendar" />
+                            <input type="date" onChange={(e) => setDateRange({ ...dateRange, to: new Date(e.target.value)})} className="calendar" />
+                            <button onClick={handleAddRange} className="button w-full">Add Date Range</button>
                         </div>
                     )}
-                     <div className="flex-1">
-                        {error && <p className="text-red-500 mt-2 mb-4">{error}</p>}
+                     <div className="selected-dates">
+                        {error && <p className="error-message">{error}</p>}
                         {selectedDates.size > 0 && (
                             <div className="space-y-2">
-                                <h3 className="text-lg font-semibold">Selected Dates</h3>
-                                <div className="flex flex-wrap gap-2">
+                                <h3 className="font-semibold">Selected Dates</h3>
+                                <div className="badge-container">
                                     {Array.from(selectedDates).sort().map(d => (
-                                        <Badge key={d} variant="secondary" className="flex items-center gap-2">
+                                        <div key={d} className="badge badge-secondary">
                                         <span>{new Date(parseApiDate(d)).toLocaleDateString()}</span>
-                                        <button onClick={() => handleRemoveDate(d)} className="text-muted-foreground hover:text-foreground">
-                                            <X className="h-3 w-3" />
+                                        <button onClick={() => handleRemoveDate(d)} className="remove-badge">
+                                            ✗
                                         </button>
-                                        </Badge>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
 
-        <Button onClick={handleDownload} disabled={selectedDates.size === 0 || isDownloading} size="lg" className="w-full">
+        <button onClick={handleDownload} disabled={selectedDates.size === 0 || isDownloading} className="button button-lg w-full">
             {isDownloading ? 'Downloading...' : `Download ${selectedDates.size} Report(s)`}
-        </Button>
+        </button>
       </div>
 
-      <div className="space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5"/>
+      <div className="sidebar">
+        <div className="card">
+            <div className="card-header">
+                <h2 className="card-title">
+                    <span>🗓️</span>
                     <span>Download Status</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
+                </h2>
+            </div>
+            <div className="card-content">
                 {loading ? <p>Loading...</p> : 
-                <div className="text-sm">
+                <div className="status-info">
                     <span className="font-semibold">Last Report:</span>
-                    <span className="text-muted-foreground ml-2">{lastDownloaded ? new Date(parseApiDate(lastDownloaded)).toDateString() : 'N/A'}</span>
+                    <span className="muted-text">{lastDownloaded ? new Date(parseApiDate(lastDownloaded)).toDateString() : 'N/A'}</span>
                 </div>}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
 
         {downloads.length > 0 && (
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Download Progress</CardTitle>
-                    <Button variant="outline" size="sm" onClick={clearCompleted}>Clear Completed</Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <div className="card">
+                <div className="card-header space-between">
+                    <h2 className="card-title">Download Progress</h2>
+                    <button className="button button-sm" onClick={clearCompleted}>Clear Completed</button>
+                </div>
+                <div className="card-content">
                     {downloads.map(d => (
-                        <div key={d.date} className="flex items-center gap-4">
-                            <div className="flex-shrink-0">{getStatusIcon(d.status)}</div>
-                            <div className="flex-grow">
+                        <div key={d.date} className="download-item">
+                            <div className="status-icon-container">{getStatusIcon(d.status)}</div>
+                            <div className="download-info">
                                 <p className="font-semibold">{new Date(parseApiDate(d.date)).toDateString()}</p>
-                                <Progress value={d.progress} className="w-full h-2"/>
-                                 {d.status === 'error' && <p className="text-xs text-red-500">Failed</p>}
+                                <div className="progress">
+                                    <div className="progress-bar" style={{ width: `${d.progress}%` }}></div>
+                                </div>
+                                 {d.status === 'error' && <p className="error-message-xs">Failed</p>}
                             </div>
                         </div>
                     ))}
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         )}
       </div>
     </div>
