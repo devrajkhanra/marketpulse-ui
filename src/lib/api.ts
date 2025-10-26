@@ -34,10 +34,17 @@ export const getSectorVolumeRatio = async (startDate: string, endDate: string) =
 };
 
 export const getTopGainersLosers = async (date?: string) => {
-  const response = await apiClient.get('/performance/top-gainers-losers', {
-    params: { date },
-  });
-  return response.data;
+  try {
+    // Update endpoint to match backend route
+    const response = await apiClient.get(`/performance/top-gainers-losers`, { params: { date } });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn(`No data available for date: ${date}`);
+      return { topGainers: [], topLosers: [] };
+    }
+    throw error;
+  }
 };
 
 export const getStockVolumeDifferences = async (dates: string[]) => {

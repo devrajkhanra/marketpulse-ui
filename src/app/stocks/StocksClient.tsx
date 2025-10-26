@@ -36,13 +36,16 @@ export default function StocksClient() {
             try {
                 const apiDate = formatToApiDate(date);
                 const data = await getTopGainersLosers(apiDate);
-                console.log(data)
                 setStockPerformance(data);
-            } catch (err) {
-                setErrorPerformance('Failed to fetch stock performance data.');
-                console.error(err);
+            } catch (err: any) {
+                const message = err.response?.status === 404
+                    ? `No data available for ${formatToApiDate(date)}`
+                    : 'Failed to fetch stock performance data.';
+                setErrorPerformance(message);
+                console.error('API Error:', err);
+            } finally {
+                setLoadingPerformance(false);
             }
-            setLoadingPerformance(false);
         };
         fetchData();
     }, [date]);

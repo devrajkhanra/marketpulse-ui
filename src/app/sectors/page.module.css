@@ -142,6 +142,20 @@
   font-size: 0.875rem;
 }
 
+.rowEven {
+  background: #f8fafc;
+}
+
+.gainerCell {
+  color: #059669;
+  font-weight: 500;
+}
+
+.loserCell {
+  color: #dc2626;
+  font-weight: 500;
+}
+
 .table th,
 .table td {
   padding: 0.75rem 0.5rem;
@@ -176,7 +190,7 @@
 }
 
 .table tbody tr:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: #f1f5f9;
   transform: scale(1.01);
 }
 
