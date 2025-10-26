@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://forty-teams-hang.loca.lt';
+const API_BASE_URL = 'http://localhost:3000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -10,6 +10,11 @@ export const getDate = async () => {
   const response = await apiClient.get<string>('/date');
   return response.data;
 };
+
+export const getLastDate = async () => {
+  const response = await apiClient.get<string>('/nse/last-date');
+  return response.data;
+}
 
 export const downloadNseReports = async (dates: string[]) => {
   const response = await apiClient.post('/nse/download', { dates });
@@ -29,6 +34,7 @@ export const getSectorVolumeRatio = async (startDate: string, endDate: string) =
 };
 
 export const getTopGainersLosers = async (date?: string) => {
+  console.log('Date: ', date);
   const response = await apiClient.get('/performance/top-gainers-losers', {
     params: { date },
   });

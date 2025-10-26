@@ -4,11 +4,6 @@ import { useState, useEffect } from 'react';
 import { getTopGainersLosers, getStockVolumeDifferences } from '@/lib/api';
 import styles from './page.module.css';
 
-interface Stock {
-    Symbol: string;
-    "%Chng": number;
-}
-
 interface StockVolume {
     symbol: string;
     volumeDifference: number;
@@ -24,7 +19,8 @@ const formatToApiDate = (date: Date): string => {
 
 export default function StocksClient() {
     const [date, setDate] = useState(new Date());
-    const [stockPerformance, setStockPerformance] = useState<{ topGainers: Stock[], topLosers: Stock[] } | null>(null);
+    // flexible shape: API returns { topGainers: Array, topLosers: Array }
+    const [stockPerformance, setStockPerformance] = useState<{ topGainers: any[], topLosers: any[] } | null>(null);
     const [loadingPerformance, setLoadingPerformance] = useState(true);
     const [errorPerformance, setErrorPerformance] = useState<string | null>(null);
 
@@ -40,6 +36,7 @@ export default function StocksClient() {
             try {
                 const apiDate = formatToApiDate(date);
                 const data = await getTopGainersLosers(apiDate);
+                console.log(data)
                 setStockPerformance(data);
             } catch (err) {
                 setErrorPerformance('Failed to fetch stock performance data.');
@@ -51,7 +48,7 @@ export default function StocksClient() {
     }, [date]);
 
     const handleVolumeFetch = async () => {
-        if(dates.length < 2) {
+        if (dates.length < 2) {
             setErrorVolume("Please select at least two dates.");
             return;
         }
@@ -68,44 +65,71 @@ export default function StocksClient() {
         setLoadingVolume(false);
     };
 
-    const renderStockTable = (stocks: Stock[], type: 'gainer' | 'loser') => (
-        <table className={styles.table}>
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>% Change</th>
-                </tr>
-            </thead>
-            <tbody>
-                {stocks.map((stock, index) => (
-                    <tr key={index}>
-                        <td>{stock.Symbol}</td>
-                        <td className={type === 'gainer' ? styles.gainer : styles.loser}>
-                            {stock["%Chng"]}
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
+    // Generic renderer: take first item keys as columns and render rows accordingly.
+    const renderStockTable = (stocks: any[], type: 'gainer' | 'loser') => {
+        if (!stocks || stocks.length === 0) return <p>No data.</p>;
+
+        const cols = Object.keys(stocks[0]);
+        const formatHeader = (h: string) => h.replace(/([A-Z])/g, ' $1').replace(/[_\-]/g, ' ').trim();
+        const formatValue = (key: string, val: any) => {
+            if (val == null) return '-';
+            if (/%?chng|%chng|percent|%/i.test(key)) {
+                const n = Number(String(val).replace('%', ''));
+                return Number.isNaN(n) ? String(val) : `${n}%`;
+            }
+            return String(val);
+        };
+
+        return (
+            <div className={styles.tableWrapper}>
+                <table className={styles.modernTable}>
+                    <thead>
+                        <tr>
+                            {cols.map((c) => <th key={c}>{formatHeader(c)}</th>)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {stocks.map((stock, i) => (
+                            <tr key={i} className={i % 2 === 0 ? styles.rowEven : undefined}>
+                                {cols.map((c) => (
+                                    <td
+                                        key={c}
+                                        className={
+                                            c.toLowerCase().includes('chng')
+                                                ? (type === 'gainer' ? styles.gainerCell : styles.loserCell)
+                                                : undefined
+                                        }
+                                    >
+                                        {formatValue(c, stock[c])}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
 
     const renderVolumeTable = (volumes: StockVolume[]) => (
-        <table className={styles.table}>
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Volume Difference</th>
-                </tr>
-            </thead>
-            <tbody>
-                {volumes.map((volume, index) => (
-                    <tr key={index}>
-                        <td>{volume.symbol}</td>
-                        <td>{volume.volumeDifference}</td>
+        <div className={styles.tableWrapper}>
+            <table className={styles.modernTable}>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Volume Difference</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {volumes.map((volume, index) => (
+                        <tr key={index} className={index % 2 === 0 ? styles.rowEven : undefined}>
+                            <td>{volume.symbol}</td>
+                            <td>{volume.volumeDifference}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 
     return (
@@ -162,7 +186,7 @@ export default function StocksClient() {
                                 id="date-picker-multi"
                                 className={styles.datePickerInput}
                                 multiple
-                                onChange={(e) => setDates(Array.from(e.target.files || []).map((file: File) => new Date(file.lastModified)))} 
+                                onChange={(e) => setDates(Array.from(e.target.files || []).map((file: File) => new Date(file.lastModified)))}
                             />
                             <button onClick={handleVolumeFetch} disabled={loadingVolume}>
                                 {loadingVolume ? 'Loading...' : 'Fetch Volume'}
