@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
-import Aside from "@/components/layout/Aside";
 import { DownloadProvider } from "@/context/DownloadContext";
 import styles from "./Home.module.css";
 
@@ -19,15 +18,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-background text-foreground`}>
+    <html lang="en">
+      <body className={`${inter.className} dark bg-background text-foreground`}>
         <DownloadProvider>
-          <div className={styles.gridContainer}>
+          <div className={styles.grid}>
             <Sidebar />
-            <main className={styles.mainContent}>
+            <main className={styles.main}>
               {children}
             </main>
-            <Aside />
           </div>
         </DownloadProvider>
       </body>

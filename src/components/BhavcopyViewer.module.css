@@ -1,0 +1,75 @@
+.container {
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.controlGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.searchInput {
+    flex-grow: 1;
+}
+
+.dateFilter {
+    width: 200px;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 4rem;
+    font-size: 1.125rem;
+    color: #9ca3af;
+}
+
+.error {
+    color: #fca5a5;
+}
+
+.tableContainer {
+    overflow-x: auto;
+}
+
+/* Basic table styles - assumes you have a UI library like shadcn/ui */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #1f2937;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.table th {
+    font-weight: 600;
+    color: #d1d5db;
+}
+
+.table td {
+    color: #9ca3af;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.pageNumbers {
+    display: flex;
+    gap: 0.5rem;
+}

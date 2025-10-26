@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { getTopGainersLosers, getStockVolumeDifferences } from '@/lib/api';
 import styles from './page.module.css';
 
+interface StockData {
+    [key: string]: string | number;
+}
+
 interface StockVolume {
     symbol: string;
     volumeDifference: number;
@@ -20,7 +24,7 @@ const formatToApiDate = (date: Date): string => {
 export default function StocksClient() {
     const [date, setDate] = useState(new Date());
     // flexible shape: API returns { topGainers: Array, topLosers: Array }
-    const [stockPerformance, setStockPerformance] = useState<{ topGainers: any[], topLosers: any[] } | null>(null);
+    const [stockPerformance, setStockPerformance] = useState<{ topGainers: StockData[], topLosers: StockData[] } | null>(null);
     const [loadingPerformance, setLoadingPerformance] = useState(true);
     const [errorPerformance, setErrorPerformance] = useState<string | null>(null);
 
@@ -37,8 +41,9 @@ export default function StocksClient() {
                 const apiDate = formatToApiDate(date);
                 const data = await getTopGainersLosers(apiDate);
                 setStockPerformance(data);
-            } catch (err: any) {
-                const message = err.response?.status === 404
+            } catch (err) {
+                const typedErr = err as { response?: { status: number } };
+                const message = typedErr.response?.status === 404
                     ? `No data available for ${formatToApiDate(date)}`
                     : 'Failed to fetch stock performance data.';
                 setErrorPerformance(message);
@@ -69,12 +74,12 @@ export default function StocksClient() {
     };
 
     // Generic renderer: take first item keys as columns and render rows accordingly.
-    const renderStockTable = (stocks: any[], type: 'gainer' | 'loser') => {
+    const renderStockTable = (stocks: StockData[], type: 'gainer' | 'loser') => {
         if (!stocks || stocks.length === 0) return <p>No data.</p>;
 
         const cols = Object.keys(stocks[0]);
         const formatHeader = (h: string) => h.replace(/([A-Z])/g, ' $1').replace(/[_\-]/g, ' ').trim();
-        const formatValue = (key: string, val: any) => {
+        const formatValue = (key: string, val: string | number) => {
             if (val == null) return '-';
             if (/%?chng|%chng|percent|%/i.test(key)) {
                 const n = Number(String(val).replace('%', ''));

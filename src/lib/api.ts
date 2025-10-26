@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -38,8 +38,9 @@ export const getTopGainersLosers = async (date?: string) => {
     // Update endpoint to match backend route
     const response = await apiClient.get(`/performance/top-gainers-losers`, { params: { date } });
     return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    if (axiosError.response?.status === 404) {
       console.warn(`No data available for date: ${date}`);
       return { topGainers: [], topLosers: [] };
     }
@@ -50,4 +51,18 @@ export const getTopGainersLosers = async (date?: string) => {
 export const getStockVolumeDifferences = async (dates: string[]) => {
   const response = await apiClient.post('/volume/differences', { dates });
   return response.data;
+};
+
+export const getBhavcopy = async (date: string, page: number, pageSize: number) => {
+    const response = await apiClient.get('/bhavcopy', {
+        params: { date, page, pageSize },
+    });
+    return response.data;
+};
+
+export const searchBhavcopy = async (query: string, date: string, page: number, pageSize: number) => {
+    const response = await apiClient.get('/bhavcopy/search', {
+        params: { query, date, page, pageSize },
+    });
+    return response.data;
 };

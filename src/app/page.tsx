@@ -1,7 +1,6 @@
 import { getTopGainersLosers, getSectorPerformance } from '@/lib/api';
 import styles from './page.module.css';
 
-// Helper to format a Date object to ddmmyyyy string
 const formatToApiDate = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -49,94 +48,83 @@ async function getLatestData() {
     }
 }
 
+const StockList: React.FC<{ stocks: Stock[]; type: 'gainer' | 'loser' }> = ({ stocks, type }) => (
+    <ul className={styles.list}>
+        {stocks.map((stock) => (
+            <li key={stock.Symbol} className={styles.listItem}>
+                <span className={styles.symbol}>{stock.Symbol}</span>
+                <span className={type === 'gainer' ? styles.gainer : styles.loser}>
+                    <span aria-hidden="true">{type === 'gainer' ? '▲' : '▼'}</span>
+                    <span className="sr-only">{type === 'gainer' ? 'Gain of' : 'Loss of'}</span>
+                    {stock["%Chng"].toFixed(2)}%
+                </span>
+            </li>
+        ))}
+    </ul>
+);
+
+const SectorList: React.FC<{ sectors: Sector[]; type: 'gainer' | 'loser' }> = ({ sectors, type }) => (
+    <ul className={styles.list}>
+        {sectors.map((sector) => (
+            <li key={sector.name} className={styles.listItem}>
+                <span className={styles.symbol}>{sector.name}</span>
+                <span className={type === 'gainer' ? styles.gainer : styles.loser}>
+                    <span aria-hidden="true">{type === 'gainer' ? '▲' : '▼'}</span>
+                    <span className="sr-only">{type === 'gainer' ? 'Gain of' : 'Loss of'}</span>
+                     {sector.percentChange.toFixed(2)}%
+                </span>
+            </li>
+        ))}
+    </ul>
+);
+
 export default async function Home() {
     const { stockPerformance, sectorPerformance } = await getLatestData();
 
-    const renderStockList = (stocks: Stock[], type: 'gainer' | 'loser') => (
-        <ul className={styles.list}>
-            {stocks.map((stock, index) => (
-                <li key={index} className={styles.listItem}>
-                    <span>{stock.Symbol}</span>
-                    <span className={type === 'gainer' ? styles.gainer : styles.loser}>
-                        {type === 'gainer' ? '▲' : '▼'}
-                        {stock["%Chng"]}
-                    </span>
-                </li>
-            ))}
-        </ul>
-    );
-
-    const renderSectorList = (sectors: Sector[], type: 'gainer' | 'loser') => (
-        <ul className={styles.list}>
-            {sectors.map((sector, index) => (
-                <li key={index} className={styles.listItem}>
-                    <span>{sector.name}</span>
-                    <span className={type === 'gainer' ? styles.gainer : styles.loser}>
-                        {type === 'gainer' ? '▲' : '▼'}
-                        {sector.percentChange.toFixed(2)}%
-                    </span>
-                </li>
-            ))}
-        </ul>
-    );
-
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Market Overview</h1>
+        <>
+            <header className={styles.hero}>
+                <h1 className={styles.heroTitle}>MarketPulse</h1>
+                <p className={styles.heroSubtitle}>Your daily snapshot of the NSE market.</p>
+            </header>
+
             <div className={styles.grid}>
-                
-                <div className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Top 5 Nifty 50 Gainers</h2>
-                    </div>
-                    <div className={styles.cardContent}>
-                        {stockPerformance?.topGainers ? (
-                            renderStockList(stockPerformance.topGainers, 'gainer')
-                        ) : (
-                            <p>Data not available.</p>
-                        )}
-                    </div>
-                </div>
+                <section className={styles.card} aria-labelledby="top-gainers-title" role="region">
+                    <h2 id="top-gainers-title" className={styles.cardTitle}>Top 5 Nifty 50 Gainers</h2>
+                    {stockPerformance?.topGainers ? (
+                        <StockList stocks={stockPerformance.topGainers} type="gainer" />
+                    ) : (
+                        <p className={styles.noData} role="status">Data not available.</p>
+                    )}
+                </section>
 
-                <div className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Top 5 Nifty 50 Losers</h2>
-                    </div>
-                    <div className={styles.cardContent}>
-                        {stockPerformance?.topLosers ? (
-                            renderStockList(stockPerformance.topLosers, 'loser')
-                        ) : (
-                            <p>Data not available.</p>
-                        )}
-                    </div>
-                </div>
+                <section className={styles.card} aria-labelledby="top-losers-title" role="region">
+                    <h2 id="top-losers-title" className={styles.cardTitle}>Top 5 Nifty 50 Losers</h2>
+                    {stockPerformance?.topLosers ? (
+                        <StockList stocks={stockPerformance.topLosers} type="loser" />
+                    ) : (
+                        <p className={styles.noData} role="status">Data not available.</p>
+                    )}
+                </section>
 
-                <div className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Top 5 Gaining Sectors</h2>
-                    </div>
-                    <div className={styles.cardContent}>
-                        {sectorPerformance?.topGainers ? (
-                            renderSectorList(sectorPerformance.topGainers, 'gainer')
-                        ) : (
-                            <p>Data not available.</p>
-                        )}
-                    </div>
-                </div>
+                <section className={styles.card} aria-labelledby="top-gaining-sectors-title" role="region">
+                    <h2 id="top-gaining-sectors-title" className={styles.cardTitle}>Top 5 Gaining Sectors</h2>
+                    {sectorPerformance?.topGainers ? (
+                        <SectorList sectors={sectorPerformance.topGainers} type="gainer" />
+                    ) : (
+                        <p className={styles.noData} role="status">Data not available.</p>
+                    )}
+                </section>
 
-                <div className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Top 5 Losing Sectors</h2>
-                    </div>
-                    <div className={styles.cardContent}>
-                        {sectorPerformance?.topLosers ? (
-                            renderSectorList(sectorPerformance.topLosers, 'loser')
-                        ) : (
-                            <p>Data not available.</p>
-                        )}
-                    </div>
-                </div>
+                <section className={styles.card} aria-labelledby="top-losing-sectors-title" role="region">
+                    <h2 id="top-losing-sectors-title" className={styles.cardTitle}>Top 5 Losing Sectors</h2>
+                    {sectorPerformance?.topLosers ? (
+                        <SectorList sectors={sectorPerformance.topLosers} type="loser" />
+                    ) : (
+                        <p className={styles.noData} role="status">Data not available.</p>
+                    )}
+                </section>
             </div>
-        </div>
+        </>
     );
 }

@@ -78,3 +78,48 @@ The application is now feature-complete and ready for deployment.
 
 - **Build**: The Next.js application will be built for production using `npm run build`.
 - **Deploy**: The application will be deployed to Firebase Hosting.
+
+## 7. UI Redesign for a More Balanced and Modern Interface
+
+This section outlines a comprehensive redesign of the user interface to create a more balanced, intuitive, and visually appealing experience. The goal is to move towards a cleaner, more modern aesthetic that improves usability and data visualization.
+
+- **Layout Simplification**:
+    - The existing three-column layout will be replaced with a more focused **two-column layout**.
+    - The `Aside.tsx` component will be removed. Its content (e.g., "Recent Activity," "Quick Links") will be integrated into more contextually relevant areas of the application or removed to reduce clutter.
+    - The primary layout will consist of a persistent `Sidebar` for navigation and a main content area.
+
+- **Visual Refresh**:
+    - **Color Palette**: Introduce a refined color palette that is modern, accessible, and helps in distinguishing between different data points (e.g., gains vs. losses).
+    - **Typography**: Improve typography for better readability and visual hierarchy. This includes using different font weights and sizes for headings, subheadings, and body text.
+    - **Spacing**: Increase white space and use consistent padding and margins to create a less cluttered and more "breathable" layout.
+    - **Card Design**: Redesign cards with subtle shadows, rounded corners, and better-organized content to present data in a clean, digestible format.
+
+- **Component-Specific Changes**:
+    - **`Sidebar.tsx`**: The sidebar will be updated with new styling to better fit the modern aesthetic. Active links will have a clearer visual indicator.
+    - **Home Page (`/app/page.tsx`)**: The dashboard will be redesigned to be more engaging. It will feature a prominent hero section and a more organized grid of cards for market overview, gainers, and losers.
+    - **Data Visualization**: Bar charts and other visualizations on the "Sectors" and "Stocks" pages will be restyled for better clarity and visual appeal.
+    - **Forms and Inputs**: Forms on the "Download" page will be updated with cleaner styling for input fields, buttons, and selected-date displays.
+
+- **Styling Implementation**:
+    - All changes will be implemented using **CSS Modules**, ensuring that styles remain scoped to their respective components.
+    - Existing `.module.css` files will be updated, and new ones will be created as needed.
+
+## 8. Accessibility Compliance (WCAG 2.2)
+
+This section documents the accessibility improvements made to ensure the application is compliant with WCAG 2.2 standards.
+
+-   **`src/app/layout.tsx`**:
+    -   Moved the `dark` class from the `html` element to the `body` element to ensure valid HTML.
+-   **`src/components/layout/Sidebar.tsx`**:
+    -   Added `aria-label` attributes to the navigation links to provide more descriptive labels for screen readers.
+-   **`src/app/page.tsx`**:
+    -   Added `role="region"` to the sections to improve landmarking and navigation for screen reader users.
+-   **`src/app/globals.css`**:
+    -   Added an `sr-only` class to hide content visually while keeping it accessible to screen readers.
+-   **`src/components/DownloadClient.tsx`**:
+    -   Added `sr-only` labels to the date inputs.
+    -   Added `aria-label` to the remove date buttons for descriptive labels.
+    -   Added `role="alert"` and `aria-live="assertive"` to error messages.
+    -   Added `aria-hidden="true"` to status icons and provided `sr-only` text for status descriptions.
+    -   Added `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` to the progress bars.
+    -   Added `aria-pressed` to the picker control buttons to indicate the current selection.
