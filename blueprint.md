@@ -9,7 +9,7 @@ This document outlines the architectural and feature blueprint for the MarketPul
 The application will adhere to modern design principles to ensure a beautiful, intuitive, and accessible user experience.
 
 - **Aesthetics**: Create a visually engaging interface using modern components, a balanced layout, clean spacing, and polished styles. The design will incorporate a vibrant color palette, expressive typography, and subtle textures to create a premium feel.
-- **Iconography & Visuals**: Use meaningful icons and visuals to enhance user understanding and navigation. All visuals, including placeholder images, will be relevant and high-quality.
+- **Iconography & Visuals**: Use meaningful icons and visuals from the `lucide-react` library to enhance user understanding and navigation. All visuals, including placeholder images, will be relevant and high-quality.
 - **Interactivity**: All interactive elements (buttons, forms, charts) will provide clear visual feedback, including loading states and smooth transitions to create a dynamic user experience.
 - **Responsiveness**: The application will be fully responsive, ensuring a seamless experience across mobile, tablet, and desktop devices.
 - **Accessibility (A11Y)**: Implement a11y best practices to empower all users, regardless of ability.
@@ -33,7 +33,6 @@ This section documents the recent refactoring to remove Tailwind CSS and its rel
     - `postcss`
     - `autoprefixer`
     - `shadcn/ui` components
-    - `lucide-react`
 - **Component Refactoring**: All components, including `DownloadClient` and the main `Home` page, have been refactored to use the new CSS Module-based styling approach instead of Tailwind's utility classes. The `ui` directory containing `shadcn/ui` components has been deleted.
 
 ## 5. Current Implementation & Features
@@ -44,8 +43,10 @@ This section documents the features that have already been implemented.
   - **Next.js**: Project initialized with the App Router.
   - **Styling**: **CSS Modules** for component-level styling.
 - **Core Layout (`/src/components/layout`)**:
-  - A persistent `Sidebar` for navigation between application pages.
-  - The root `layout.tsx` integrates the sidebar, main content area, and global providers.
+  - The root layout is a three-column grid defined in `Home.module.css`.
+  - **`Sidebar.tsx`**: A persistent left sidebar for navigation, using `lucide-react` for icons.
+  - **Main Content**: A central, scrollable area for page content.
+  - **`Aside.tsx`**: A right-hand aside for displaying supplementary information like recent activity and quick links.
 - **Global Download Management**:
   - **`DownloadContext`**: A global React context (`/src/context/DownloadContext.tsx`) manages the state of file downloads across the entire application.
   - **`DownloadProvider`**: Wraps the root layout to provide download state and functions to all components.

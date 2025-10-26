@@ -1,0 +1,42 @@
+.aside {
+  background-color: #1a1a1a;
+  padding: 20px;
+  color: #fff;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.card {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.activityList, .quickLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activityList li, .quickLinks li {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.quickLinks a {
+  color: #0070f3;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.quickLinks a:hover {
+  color: #005bb5;
+}
