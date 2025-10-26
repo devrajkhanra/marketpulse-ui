@@ -5,9 +5,10 @@ import { getSectorPerformance, getSectorVolumeRatio } from '@/lib/api';
 import styles from './page.module.css';
 import barChartStyles from './BarChart.module.css';
 
+// Update interface to match API response
 interface Sector {
-    name: string;
-    percentChange: number;
+    sector: string;
+    percentageChange: number;
 }
 
 interface SectorVolume {
@@ -25,7 +26,10 @@ const formatToApiDate = (date: Date): string => {
 
 export default function SectorsClient() {
     const [date, setDate] = useState(new Date());
-    const [sectorPerformance, setSectorPerformance] = useState<{ topGainers: Sector[], topLosers: Sector[] } | null>(null);
+    const [sectorPerformance, setSectorPerformance] = useState<{
+        topGainers: Sector[],
+        topLosers: Sector[]
+    } | null>(null);
     const [loadingPerformance, setLoadingPerformance] = useState(true);
     const [errorPerformance, setErrorPerformance] = useState<string | null>(null);
 
@@ -42,6 +46,7 @@ export default function SectorsClient() {
             try {
                 const apiDate = formatToApiDate(date);
                 const data = await getSectorPerformance(apiDate);
+                console.log(data)
                 setSectorPerformance(data);
             } catch (err) {
                 setErrorPerformance('Failed to fetch sector performance data.');
@@ -70,25 +75,29 @@ export default function SectorsClient() {
         fetchData();
     }, [startDate, endDate]);
 
+    // Update table rendering function
     const renderSectorTable = (sectors: Sector[], type: 'gainer' | 'loser') => (
-        <table className={styles.table}>
-            <thead>
-                <tr>
-                    <th>Sector</th>
-                    <th>Change</th>
-                </tr>
-            </thead>
-            <tbody>
-                {sectors.map((sector, index) => (
-                    <tr key={index}>
-                        <td>{sector.name}</td>
-                        <td className={type === 'gainer' ? styles.gainer : styles.loser}>
-                            {sector.percentChange.toFixed(2)}%
-                        </td>
+        <div className={styles.tableWrapper}>
+            <table className={styles.modernTable}>
+                <thead>
+                    <tr>
+                        <th>Sector</th>
+                        <th>% Change</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {sectors.map((sector, index) => (
+                        <tr key={index} className={index % 2 === 0 ? styles.rowEven : undefined}>
+                            <td>{sector.sector}</td>
+                            <td className={type === 'gainer' ? styles.gainerCell : styles.loserCell}>
+                                {sector.percentageChange > 0 ? '+' : ''}
+                                {sector.percentageChange.toFixed(2)}%
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 
     const renderVolumeChart = (sectors: SectorVolume[]) => {
@@ -98,7 +107,7 @@ export default function SectorsClient() {
                 {sectors.map((sector, index) => (
                     <div key={index} className={barChartStyles.barChartRow}>
                         <div className={barChartStyles.barLabel}>{sector.sector}</div>
-                        <div 
+                        <div
                             className={barChartStyles.bar}
                             style={{ width: `${(sector.volumeRatio / maxRatio) * 100}%` }}
                         ></div>
@@ -165,7 +174,7 @@ export default function SectorsClient() {
                                 value={startDate.toISOString().split('T')[0]}
                                 onChange={(e) => setStartDate(new Date(e.target.value))}
                             />
-                             <label htmlFor="end-date">End Date:</label>
+                            <label htmlFor="end-date">End Date:</label>
                             <input
                                 type="date"
                                 id="end-date"
