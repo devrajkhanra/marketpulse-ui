@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { getSectorPerformance, getSectorVolumeRatio } from '@/lib/api';
+import { AlertCircle, Plus, XCircle, PieChart } from 'lucide-react';
 import styles from './page.module.css';
 import barChartStyles from './BarChart.module.css';
 
-// Update interface to match API response
+
 interface Sector {
     sector: string;
     percentageChange: number;
@@ -16,12 +17,19 @@ interface SectorVolume {
     volumeRatio: number;
 }
 
-// Helper to format a Date object to ddmmyyyy string
 const formatToApiDate = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}${month}${year}`;
+};
+
+const formatDisplayDate = (date: Date): string => {
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
 };
 
 export default function SectorsClient() {
@@ -33,10 +41,10 @@ export default function SectorsClient() {
     const [loadingPerformance, setLoadingPerformance] = useState(true);
     const [errorPerformance, setErrorPerformance] = useState<string | null>(null);
 
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+    const [tempDate, setTempDate] = useState<Date>(new Date());
     const [sectorVolume, setSectorVolume] = useState<{ topSectors: SectorVolume[], bottomSectors: SectorVolume[] } | null>(null);
-    const [loadingVolume, setLoadingVolume] = useState(true);
+    const [loadingVolume, setLoadingVolume] = useState(false);
     const [errorVolume, setErrorVolume] = useState<string | null>(null);
 
     useEffect(() => {
@@ -46,36 +54,51 @@ export default function SectorsClient() {
             try {
                 const apiDate = formatToApiDate(date);
                 const data = await getSectorPerformance(apiDate);
-                console.log(data)
                 setSectorPerformance(data);
             } catch (err) {
-                setErrorPerformance('Failed to fetch sector performance data.');
-                console.error(err);
+                const typedErr = err as { response?: { status: number } };
+                const message = typedErr.response?.status === 404
+                    ? `No data available for ${formatToApiDate(date)}`
+                    : 'Failed to fetch sector performance data.';
+                setErrorPerformance(message);
+                console.error('API Error:', err);
+            } finally {
+                setLoadingPerformance(false);
             }
-            setLoadingPerformance(false);
         };
         fetchData();
     }, [date]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoadingVolume(true);
+    const handleAddDate = () => {
+        if (tempDate && !selectedDates.some(d => formatToApiDate(d) === formatToApiDate(tempDate))) {
+            setSelectedDates([...selectedDates, tempDate]);
             setErrorVolume(null);
-            try {
-                const start = formatToApiDate(startDate);
-                const end = formatToApiDate(endDate);
-                const data = await getSectorVolumeRatio(start, end);
-                setSectorVolume(data);
-            } catch (err) {
-                setErrorVolume('Failed to fetch sector volume data.');
-                console.error(err);
-            }
-            setLoadingVolume(false);
-        };
-        fetchData();
-    }, [startDate, endDate]);
+        }
+    };
 
-    // Update table rendering function
+    const handleRemoveDate = (dateToRemove: Date) => {
+        setSelectedDates(selectedDates.filter(d => formatToApiDate(d) !== formatToApiDate(dateToRemove)));
+    };
+
+    const handleVolumeFetch = async () => {
+        if (selectedDates.length < 2) {
+            setErrorVolume("Please select at least two dates.");
+            return;
+        }
+        setLoadingVolume(true);
+        setErrorVolume(null);
+        try {
+            const apiDates = selectedDates.sort((a, b) => a.getTime() - b.getTime()).map(formatToApiDate);
+            const data = await getSectorVolumeRatio(apiDates[0], apiDates[apiDates.length - 1]);
+            setSectorVolume(data);
+        } catch (err) {
+            setErrorVolume('Failed to fetch sector volume data.');
+            console.error(err);
+        } finally {
+            setLoadingVolume(false);
+        }
+    };
+
     const renderSectorTable = (sectors: Sector[], type: 'gainer' | 'loser') => (
         <div className={styles.tableWrapper}>
             <table className={styles.modernTable}>
@@ -124,7 +147,10 @@ export default function SectorsClient() {
             <div className={styles.grid}>
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Sector Performance</h2>
+                        <h2 className={styles.cardTitle}>
+                            <PieChart size={18} />
+                            Sector Performance
+                        </h2>
                     </div>
                     <div className={styles.cardContent}>
                         <div className={styles.datePickerContainer}>
@@ -137,70 +163,110 @@ export default function SectorsClient() {
                                 onChange={(e) => setDate(new Date(e.target.value))}
                             />
                         </div>
-                        {loadingPerformance && <p>Loading...</p>}
-                        {errorPerformance && <p>{errorPerformance}</p>}
-                        <div className={styles.grid}>
-                            <div>
+                        {loadingPerformance && <p className={styles.loading}>Loading...</p>}
+                        {errorPerformance && (
+                            <div className={styles.errorMessage}>
+                                <AlertCircle size={16} />
+                                {errorPerformance}
+                            </div>
+                        )}
+                        {!loadingPerformance && !errorPerformance && (
+                            <>
                                 <h3>Top 5 Gainers</h3>
                                 {sectorPerformance?.topGainers ? (
                                     renderSectorTable(sectorPerformance.topGainers, 'gainer')
                                 ) : (
-                                    <p>Data not available.</p>
+                                    <p className={styles.noData}>Data not available.</p>
                                 )}
-                            </div>
-                            <div>
                                 <h3>Top 5 Losers</h3>
                                 {sectorPerformance?.topLosers ? (
                                     renderSectorTable(sectorPerformance.topLosers, 'loser')
                                 ) : (
-                                    <p>Data not available.</p>
+                                    <p className={styles.noData}>Data not available.</p>
                                 )}
-                            </div>
-                        </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Sector Volume Analysis</h2>
+                        <h2 className={styles.cardTitle}>
+                            <PieChart size={18} />
+                            Sector Volume Analysis
+                        </h2>
                     </div>
                     <div className={styles.cardContent}>
                         <div className={styles.datePickerContainer}>
-                            <label htmlFor="start-date">Start Date:</label>
+                            <label htmlFor="date-picker-multi">Add Date:</label>
                             <input
                                 type="date"
-                                id="start-date"
+                                id="date-picker-multi"
                                 className={styles.datePickerInput}
-                                value={startDate.toISOString().split('T')[0]}
-                                onChange={(e) => setStartDate(new Date(e.target.value))}
+                                value={tempDate.toISOString().split('T')[0]}
+                                onChange={(e) => setTempDate(new Date(e.target.value))}
                             />
-                            <label htmlFor="end-date">End Date:</label>
-                            <input
-                                type="date"
-                                id="end-date"
-                                className={styles.datePickerInput}
-                                value={endDate.toISOString().split('T')[0]}
-                                onChange={(e) => setEndDate(new Date(e.target.value))}
-                            />
+                            <button
+                                onClick={handleAddDate}
+                                className={`${styles.button} ${styles.primary}`}
+                            >
+                                <Plus size={16} /> Add Date
+                            </button>
                         </div>
-                        {loadingVolume && <p>Loading...</p>}
-                        {errorVolume && <p>{errorVolume}</p>}
-                        <div>
-                            <h3>Top 5 Sectors by Volume Ratio</h3>
-                            {sectorVolume?.topSectors ? (
-                                renderVolumeChart(sectorVolume.topSectors)
-                            ) : (
-                                <p>Data not available.</p>
-                            )}
-                        </div>
-                        <div>
-                            <h3>Bottom 5 Sectors by Volume Ratio</h3>
-                            {sectorVolume?.bottomSectors ? (
-                                renderVolumeChart(sectorVolume.bottomSectors)
-                            ) : (
-                                <p>Data not available.</p>
-                            )}
-                        </div>
+
+                        {selectedDates.length > 0 && (
+                            <div className={styles.selectedDatesContainer}>
+                                {selectedDates.map((d, idx) => (
+                                    <div key={idx} className={styles.badge}>
+                                        <span>{formatDisplayDate(d)}</span>
+                                        <button
+                                            onClick={() => handleRemoveDate(d)}
+                                            className={styles.removeBadge}
+                                            aria-label={`Remove ${formatDisplayDate(d)}`}
+                                        >
+                                            <XCircle size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <button
+                            onClick={handleVolumeFetch}
+                            disabled={loadingVolume || selectedDates.length < 2}
+                            className={`${styles.button} ${styles.primary}`}
+                            style={{ marginTop: '1rem' }}
+                        >
+                            {loadingVolume ? 'Loading...' : 'Fetch Volume Data'}
+                        </button>
+
+                        {errorVolume && (
+                            <div className={styles.errorMessage}>
+                                <AlertCircle size={16} />
+                                {errorVolume}
+                            </div>
+                        )}
+
+                        {sectorVolume ? (
+                            <>
+                                <h3>Top 5 Sectors by Volume Ratio</h3>
+                                {sectorVolume?.topSectors ? (
+                                    renderVolumeChart(sectorVolume.topSectors)
+                                ) : (
+                                    <p className={styles.noData}>Data not available.</p>
+                                )}
+                                <h3>Bottom 5 Sectors by Volume Ratio</h3>
+                                {sectorVolume?.bottomSectors ? (
+                                    renderVolumeChart(sectorVolume.bottomSectors)
+                                ) : (
+                                    <p className={styles.noData}>Data not available.</p>
+                                )}
+                            </>
+                        ) : !loadingVolume && !errorVolume && selectedDates.length >= 2 ? (
+                            <p className={styles.noData}>Click &quot;Fetch Volume Data&quot; to see results.</p>
+                        ) : !errorVolume && selectedDates.length < 2 ? (
+                            <p className={styles.noData}>Select at least two dates to analyze volume.</p>
+                        ) : null}
                     </div>
                 </div>
             </div>
