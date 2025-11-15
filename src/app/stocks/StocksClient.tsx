@@ -122,8 +122,10 @@ export default function StocksClient() {
                                     <td
                                         key={c}
                                         className={
-                                            c.toLowerCase().includes('chng')
-                                                ? (type === 'gainer' ? styles.gainerCell : styles.loserCell)
+                                            c === 'percentage'
+                                                ? type === 'gainer'
+                                                    ? styles.gainerCell
+                                                    : styles.loserCell
                                                 : undefined
                                         }
                                     >
