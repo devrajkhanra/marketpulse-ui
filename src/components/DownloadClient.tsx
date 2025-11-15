@@ -217,7 +217,7 @@ export default function DownloadClient() {
                                     {getStatusIcon(d.status)}
                                     <div className={styles.downloadInfo}>
                                         <p>{formatDisplayDate(d.date)}</p>
-                                        <div className={styles.progress} role="progressbar" aria-valuenow={d.progress} aria-valuemin="0" aria-valuemax="100">
+                                        <div className={styles.progress} role="progressbar" aria-valuenow={d.progress} aria-valuemin={0} aria-valuemax={100}>
                                             <div className={styles.progressBar} style={{ width: `${d.progress}%` }}></div>
                                             <span className="sr-only">{d.progress}% complete</span>
                                         </div>
