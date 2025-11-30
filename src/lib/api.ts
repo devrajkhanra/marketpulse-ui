@@ -26,12 +26,11 @@ export const getSectorPerformance = async (date: string) => {
   return response.data;
 };
 
-export const getSectorVolumeRatio = async (startDate: string, endDate: string) => {
-  const response = await apiClient.get(`/sectors/volume-ratio`, {
-    params: { startDate, endDate },
-  });
+export const getSectorVolumeRatio = async (previousDate: string, currentDate: string) => {
+  const response = await apiClient.get(`/sectors/volume-ratio/${currentDate}/${previousDate}`);
   return response.data;
 };
+
 
 export const getTopGainersLosers = async (date?: string) => {
   try {
@@ -54,15 +53,15 @@ export const getStockVolumeDifferences = async (dates: string[]) => {
 };
 
 export const getBhavcopy = async (date: string, page: number, pageSize: number) => {
-    const response = await apiClient.get('/bhavcopy', {
-        params: { date, page, pageSize },
-    });
-    return response.data;
+  const response = await apiClient.get('/bhavcopy', {
+    params: { date, page, pageSize },
+  });
+  return response.data;
 };
 
 export const searchBhavcopy = async (query: string, date: string, page: number, pageSize: number) => {
-    const response = await apiClient.get('/bhavcopy/search', {
-        params: { query, date, page, pageSize },
-    });
-    return response.data;
+  const response = await apiClient.get('/bhavcopy/search', {
+    params: { query, date, page, pageSize },
+  });
+  return response.data;
 };

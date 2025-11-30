@@ -86,6 +86,7 @@ export default function SectorsClient() {
             return;
         }
         setLoadingVolume(true);
+        console.log(loadingVolume)
         setErrorVolume(null);
         try {
             const apiDates = selectedDates.sort((a, b) => a.getTime() - b.getTime()).map(formatToApiDate);
